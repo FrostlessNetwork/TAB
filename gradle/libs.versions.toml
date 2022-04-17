@@ -33,6 +33,7 @@ libsDisguises = "10.0.26"
 essentials = "2.19.2"
 premiumVanish = "2.0.3"
 redisBungee = "0.6.5-SNAPSHOT"
+minimessage = "4.10.1"
 
 [libraries]
 
@@ -68,6 +69,9 @@ libsDisguises = { group = "LibsDisguises", name = "LibsDisguises", version.ref =
 essentials = { group = "net.essentialsx", name = "EssentialsX", version.ref = "essentials" }
 premiumVanish = { group = "com.github.MyzelYam", name = "PremiumVanishAPI", version.ref = "premiumVanish" }
 redisBungee = { group = "com.imaginarycode.minecraft", name = "RedisBungee", version.ref = "redisBungee" }
+adventureMiniMessage = { group = "net.kyori", name = "adventure-text-minimessage", version.ref = "minimessage" }
+adventureApi = { group = "net.kyori", name = "adventure-api", version.ref = "minimessage" }
+adventureLegacy = { group = "net.kyori", name = "adventure-text-serializer-legacy", version.ref = "minimessage" }
 
 # Metrics
 bstats-bukkit = { group = "org.bstats", name = "bstats-bukkit", version.ref = "bstats" }

@@ -8,6 +8,9 @@ dependencies {
         exclude("com.google.guava", "guava")
         exclude("org.checkerframework", "checker-qual")
     }
+
+    compileOnlyApi(libs.adventureMiniMessage)
+    compileOnlyApi(libs.adventureApi)
     compileOnlyApi(libs.luckperms)
     compileOnlyApi(libs.guava)
     compileOnlyApi(libs.floodgate)

@@ -8,8 +8,12 @@ import me.neznamy.tab.api.TabFeature;
 import me.neznamy.tab.api.TabPlayer;
 import me.neznamy.tab.api.chat.EnumChatFormat;
 import me.neznamy.tab.api.chat.rgb.RGBUtils;
+import me.neznamy.tab.api.chat.rgb.format.BukkitFormat;
+import me.neznamy.tab.api.chat.rgb.format.RGBFormatter;
 import me.neznamy.tab.shared.features.TabExpansion;
 import me.neznamy.tab.shared.placeholders.RelationalPlaceholderImpl;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 /**
  * A dynamic text with placeholder support. If any placeholder
@@ -18,7 +22,9 @@ import me.neznamy.tab.shared.placeholders.RelationalPlaceholderImpl;
  */
 public class DynamicText implements Property {
 
-    /** Internal identifier for this text for PlaceholderAPI expansion, null if it should not be exposed */
+    /**
+     * Internal identifier for this text for PlaceholderAPI expansion, null if it should not be exposed
+     */
     private final String name;
 
     /**
@@ -26,14 +32,20 @@ public class DynamicText implements Property {
      * if any of placeholders used in it change value.
      */
     private final TabFeature listener;
-    
-    /** Player this text belongs to */
+
+    /**
+     * Player this text belongs to
+     */
     private final TabPlayer owner;
-    
-    /** Raw value as defined in configuration */
+
+    /**
+     * Raw value as defined in configuration
+     */
     private String rawValue;
 
-    /** Raw value assigned via API, null if not set */
+    /**
+     * Raw value assigned via API, null if not set
+     */
     private String temporaryValue;
 
     /**
@@ -43,10 +55,14 @@ public class DynamicText implements Property {
      */
     private String rawFormattedValue;
 
-    /** Last known value after parsing non-relational placeholders */
+    /**
+     * Last known value after parsing non-relational placeholders
+     */
     private String lastReplacedValue;
-    
-    /** Source defining value of the text, displayed in debug command */
+
+    /**
+     * Source defining value of the text, displayed in debug command
+     */
     private String source;
 
     /**
@@ -56,22 +72,20 @@ public class DynamicText implements Property {
      * to their identifier.
      */
     private String[] placeholders;
-    
-    /** Relational placeholders in the text in the same order they are used */
+
+    /**
+     * Relational placeholders in the text in the same order they are used
+     */
     private String[] relPlaceholders;
 
     /**
      * Constructs new instance with given parameters and prepares
      * the formatter for use by detecting placeholders and reformatting the text.
      *
-     * @param   listener
-     *          Feature which should receive refresh method if placeholder changes value
-     * @param   owner
-     *          Player this text belongs to
-     * @param   rawValue
-     *          Raw value using raw placeholder identifiers
-     * @param   source
-     *          Source of the text used in debug command
+     * @param listener Feature which should receive refresh method if placeholder changes value
+     * @param owner    Player this text belongs to
+     * @param rawValue Raw value using raw placeholder identifiers
+     * @param source   Source of the text used in debug command
      */
     public DynamicText(String name, TabFeature listener, TabPlayer owner, String rawValue, String source) {
         this.name = name;
@@ -86,8 +100,7 @@ public class DynamicText implements Property {
      * Finds all placeholders used in the value and prepares it for
      * String formatter using %s for each placeholder.
      *
-     * @param   value
-     *          raw value to analyze
+     * @param value raw value to analyze
      */
     private void analyze(String value) {
         List<String> placeholders0 = new ArrayList<>();
@@ -104,9 +117,9 @@ public class DynamicText implements Property {
         }
         if (placeholders0.size() > 0 && rawFormattedValue0.contains("%")) {
             int index = rawFormattedValue0.lastIndexOf('%');
-            if (rawFormattedValue0.length() == index+1 || rawFormattedValue0.charAt(index+1) != 's') {
+            if (rawFormattedValue0.length() == index + 1 || rawFormattedValue0.charAt(index + 1) != 's') {
                 StringBuilder sb = new StringBuilder(rawFormattedValue0);
-                sb.insert(index+1, "%");
+                sb.insert(index + 1, "%");
                 rawFormattedValue0 = sb.toString();
             }
         }
@@ -130,10 +143,8 @@ public class DynamicText implements Property {
      * Changes raw value to new provided value and performs all
      * operations related to it. Changes source as well.
      *
-     * @param   newValue
-     *          new raw value to use
-     * @param   newSource
-     *          new source of the text
+     * @param newValue  new raw value to use
+     * @param newSource new source of the text
      */
     public void changeRawValue(String newValue, String newSource) {
         if (rawValue.equals(newValue)) return;
@@ -147,7 +158,7 @@ public class DynamicText implements Property {
     /**
      * Returns source of the raw value or {@code "API"} if it comes from an API call
      *
-     * @return  source of the value
+     * @return source of the value
      */
     public String getSource() {
         return temporaryValue == null ? source : "API";
@@ -163,28 +174,28 @@ public class DynamicText implements Property {
             analyze(rawValue);
         }
     }
-    
+
     @Override
     public String getCurrentRawValue() {
         return temporaryValue != null ? temporaryValue : rawValue;
     }
-    
+
     @Override
     public String getTemporaryValue() {
         return temporaryValue;
     }
-    
+
     @Override
     public String getOriginalRawValue() {
         return rawValue;
     }
-    
+
     @Override
     public String updateAndGet() {
         update();
         return get();
     }
-    
+
     @Override
     public boolean update() {
         if (placeholders.length == 0) return false;
@@ -194,7 +205,7 @@ public class DynamicText implements Property {
             string = TAB.getInstance().getPlaceholderManager().getPlaceholder(placeholders[0]).set(placeholders[0], owner);
         } else {
             Object[] values = new String[placeholders.length];
-            for (int i=0; i<placeholders.length; i++) {
+            for (int i = 0; i < placeholders.length; i++) {
                 values[i] = TAB.getInstance().getPlaceholderManager().getPlaceholder(placeholders[i]).set(placeholders[i], owner);
             }
             string = String.format(rawFormattedValue, values);
@@ -206,10 +217,10 @@ public class DynamicText implements Property {
             if (expansion != null && name != null) {
                 expansion.setPropertyValue(owner, name, lastReplacedValue);
             }
-            TAB.getInstance().getCPUManager().addMethodTime("Property#update", System.nanoTime()-time);
+            TAB.getInstance().getCPUManager().addMethodTime("Property#update", System.nanoTime() - time);
             return true;
         }
-        TAB.getInstance().getCPUManager().addMethodTime("Property#update", System.nanoTime()-time);
+        TAB.getInstance().getCPUManager().addMethodTime("Property#update", System.nanoTime() - time);
         return false;
     }
 
@@ -217,7 +228,7 @@ public class DynamicText implements Property {
     public String get() {
         return lastReplacedValue;
     }
-    
+
     @Override
     public String getFormat(TabPlayer viewer) {
         String format = lastReplacedValue;
